@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-from algorithms import A2C
+from A2C import A2C
 from utils import moving_average
 
 # HYP -------------------------------------------------------------

@@ -4,7 +4,7 @@ import time
 import gym
 import numpy as np
 
-from algorithms import A2C
+from A2C import A2C
 
 # HYP -------------------------------------------------------------
 FRAMES = 50_000  # number of training frames at which training will stop

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from models import ActorCritic, ActorCriticSeparate
+from .actor_critic import ActorCritic, ActorCriticSeparate
 from utils import moving_average
 
 
