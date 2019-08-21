@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-from A2C import A2C
+from src import A2C
 from utils import moving_average
 
 # HYP -------------------------------------------------------------
@@ -33,7 +33,7 @@ for separate in tqdm([True, False]):
     # SCORE -----------------------------------------------------------
     scores = []
     for _ in range(100):
-        scores.append(agent.test())
+        scores.append(agent.play())
     all_scores[separate] = np.mean(scores)
 
 print(all_scores)

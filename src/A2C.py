@@ -35,8 +35,8 @@ class A2C:
         plot=True,
         verbose=False,
     ) -> list:
-
         self.verbose = verbose
+
         T = 0
 
         state = self.env.reset()
@@ -92,12 +92,15 @@ class A2C:
 
         return ep_rewards
 
-    def _select_action(self, state: np.ndarray, best=False) -> int:
+    def _select_action(self, state: np.ndarray, best=False, model=None) -> int:
+        if model is None:
+            model = self.model
+
         state = torch.from_numpy(state).float().unsqueeze(0)
         if best:
-            return self.model.action_head(state).max(1)[1].item()
+            return model.action_head(state).max(1)[1].item()
         else:
-            return self.model.action_head(state).multinomial(1).item()
+            return model.action_head(state).multinomial(1).item()
 
     def _update(
         self,
@@ -106,15 +109,22 @@ class A2C:
         action_rewards: list,
         terminals: list,
         gamma: float,
+        model=None,
+        optim=None,
     ) -> None:
+        if model is None:
+            model = self.model
+        if optim is None:
+            optim = self.optimiser
+
         # Get rewards
         total_rewards = self._calc_total_rewards(
-            states, action_rewards, terminals, gamma
+            states, action_rewards, terminals, gamma, model
         )
 
         # Run states through the model to get values AND actions
         states = torch.FloatTensor(states)
-        action_probs, q_values = self.model.evaluate(states)
+        action_probs, q_values = model.evaluate(states)
 
         # Calculate value loss
         advantage = total_rewards - q_values
@@ -131,18 +141,26 @@ class A2C:
             print("Loss: {:.3f}".format(loss.item()))
 
         # Update parameters
-        self.optimiser.zero_grad()
+        optim.zero_grad()
         loss.backward()
-        self.optimiser.step()
+        optim.step()
 
     def _calc_total_rewards(
-        self, states: list, action_rewards: list, terminals: list, gamma: float
+        self,
+        states: list,
+        action_rewards: list,
+        terminals: list,
+        gamma: float,
+        model=None,
     ) -> torch.Tensor:
+        if model is None:
+            model = self.model
+
         if terminals[-1]:
             total_rewards = [0]
         else:
             state = torch.from_numpy(states[-1]).float().unsqueeze(0)
-            total_rewards = [self.model.value_head(state).item()]
+            total_rewards = [model.value_head(state).item()]
 
         for i in range(2, len(action_rewards) + 1):
             if not terminals[-i]:
@@ -154,7 +172,7 @@ class A2C:
         total_rewards.reverse()
         return torch.FloatTensor(total_rewards).unsqueeze(1)
 
-    def test(self) -> None:
+    def play(self) -> None:
         score = 0.0
         is_done = False
         state = self.env.reset()

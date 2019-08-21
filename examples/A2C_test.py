@@ -4,13 +4,13 @@ import time
 import gym
 import numpy as np
 
-from A2C import A2C
+from src import A2C
 
 # HYP -------------------------------------------------------------
 FRAMES = 50_000  # number of training frames at which training will stop
 UPDATE_EVERY = 20  # number of frames before an episode is stopped
 MAX_EPISODES = (
-    4_000
+    40_000
 )  # number of episodes at which training will stop, if FRAMES hasn't already been reached
 
 env = gym.make("CartPole-v1")
@@ -28,5 +28,5 @@ print("It took {:.3f}s to train".format(end - start))
 # SCORE -----------------------------------------------------------
 scores = []
 for _ in range(100):
-    scores.append(agent.test())
+    scores.append(agent.play())
 print("Average score: {}".format(np.mean(scores)))
